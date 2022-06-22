@@ -1,6 +1,6 @@
 import http from 'http'
 import app from './api/api.js'
-
+import database from './api/config/database.js'
 const port = process.env.PORT || 3000
 const server = http.createServer(app)
 
@@ -24,3 +24,4 @@ server.on("listening",onListening)
 server.on("error",onError)
 
 server.listen(port)
+database()
