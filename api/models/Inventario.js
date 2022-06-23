@@ -6,8 +6,9 @@ const InventarioSchema = new mongoose.Schema({
         ref: 'Producto',
         required: true 
     },
-    stock:{
-        type:Number,
+    stock:Number,
+    useStock:{
+        type:mongoose.Schema.Types.Boolean,
         required:true
     },
     category:{

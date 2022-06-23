@@ -15,7 +15,7 @@ const productosSchema = new mongoose.Schema({
     },
     disable:{
         type:mongoose.Schema.Types.Boolean,
-        default:true
+        default:false
     },
     description:{
         type:String,
@@ -26,9 +26,13 @@ const productosSchema = new mongoose.Schema({
         required: [true,"header required"]
     },
     folio:{
-        type:String,
+        type:Number,
         required: [true,"folio required"],
         unique: true
+    },
+    tags:{
+        type:Array,
+        of:mongoose.Schema.Types.ObjectId
     }
 })
 
