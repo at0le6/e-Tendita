@@ -17,7 +17,7 @@ const createProducto=async(req,res)=>{
         const dataProducto=await productosSchema.create(jsonProducto)
             //condicionales del objeto
             if(Object.keys(dataProducto).length==0)throw "productos no se pudo insertar"
-        const categoryID= await Categories.findOne({name:content.category}).orFail()
+        const categoryID= await find.findOneCategories({name:content.category})
         const jsonInventario={
              item:dataProducto._id,useStock:content.useStock
              ,category:categoryID._id
