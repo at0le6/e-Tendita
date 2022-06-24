@@ -1,6 +1,5 @@
-import InventarioSchema from '../models/Inventario.js'
-import Categories from '../models/Inventario.js'
+import Categories from '../models/Categories.js'
 export default {
-    findOneInventario: async (params)=>{ return await InventarioSchema.findOne(params)},
-    findOneCategories: async (params)=>{ return await Categories.findOne(params)}
+    findOneCategories: async (params)=>{ return await Categories.findOne(params)},
+    findOneByIDCategories: async (params)=>{ return await Categories.findById(params)}
 }

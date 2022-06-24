@@ -32,7 +32,18 @@ const productosSchema = new mongoose.Schema({
     },
     tags:{
         type:Array,
-        of:mongoose.Schema.Types.ObjectId
+        of:mongoose.Schema.Types.ObjectId,
+        default:[]
+    },
+    useStock: {
+        type:mongoose.Schema.Types.Boolean,
+        required: [true,"header useStock"]
+    },
+    stock:Number,
+    category:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref: 'categories',
+        required: true 
     }
 })
 

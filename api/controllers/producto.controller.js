@@ -1,5 +1,4 @@
 import productosSchema from '../models/Producto.js';
-import InventarioSchema from '../models/Inventario.js';
 import Categories from '../models/Categories.js';
 import find from '../lib/Finds.js'
 
@@ -9,46 +8,30 @@ const createProducto=async(req,res)=>{
         const generatedFolio=await productosSchema.find().estimatedDocumentCount() +1
         let jsonProducto={
                  name:content.name,price:content.price,description:content.description
-                 ,header:content.header,folio:generatedFolio
+                 ,header:content.header,folio:generatedFolio,useStock:content.useStock
             }
             //condicionales del objeto
             if(typeof content.image!=="undefined")jsonProducto.image=content.image
             if(typeof content.disable!=="undefined")jsonProducto.disable=content.disable
-        const dataProducto=await productosSchema.create(jsonProducto)
+        const categoryID= await find.findOneByIDCategories(content.category)
+        jsonProducto.category=categoryID._id
             //condicionales del objeto
-            if(Object.keys(dataProducto).length==0)throw "productos no se pudo insertar"
-        const categoryID= await find.findOneCategories({name:content.category})
-        const jsonInventario={
-             item:dataProducto._id,useStock:content.useStock
-             ,category:categoryID._id
-            }
-            //condicionales del objeto
-            if(content.useStock && typeof content.stock!=="undefined")jsonInventario.stock=content.stock
+            if(content.useStock && typeof content.stock!=="undefined")jsonProducto.stock=content.stock
             else if(typeof content.stock==="undefined"&&content.useStock) throw "favor de enviar stock"
-            else if(!content.useStock)jsonInventario.stock=0
-        const dataInventario=await InventarioSchema.create(jsonInventario)
-            if(Object.keys(dataInventario).length==0)throw "productos no se pudo insertar"
-        return res.status(201).json({folio:dataProducto.folio})
+            else if(!content.useStock)jsonProducto.stock=0
+        const insert=await productosSchema.create(jsonProducto)
+        return res.status(201).json({folio:insert.folio})
     } catch (error) {
+        console.log(error);
         return res.status(500).json(error)
     }
 }
 const allProducto=async(req,res)=>{
     try {
-        let allProducts= await productosSchema.find({},'-__v').lean()
-        for (let index = 0; index < allProducts.length; index++) {
-            let Inventory=await find.findOneInventario({item:allProducts[index]._id})
-            delete allProducts[index]._id
-            if(!Inventory){
-                console.log("pasando por aqui")
-                allProducts[index].errorInventario=true
-                continue;
-            }
-            if(Inventory.useStock)allProducts[index].stock=Inventory.stock
-            //allProducts.category=Inventory.Categorias.name
-        }
+        let allProducts= await productosSchema.find({},'-__v')
         return res.status(200).json({Products:allProducts})
     } catch (error) {
+        console.log(error);
         return res.status(500).json({error:error}) 
     } 
 }
