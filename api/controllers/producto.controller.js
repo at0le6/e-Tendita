@@ -1,5 +1,4 @@
 import productosSchema from '../models/Producto.js';
-import Categories from '../models/Categories.js';
 import find from '../lib/Finds.js'
 
 const createProducto=async(req,res)=>{
@@ -14,6 +13,7 @@ const createProducto=async(req,res)=>{
             if(typeof content.image!=="undefined")jsonProducto.image=content.image
             if(typeof content.disable!=="undefined")jsonProducto.disable=content.disable
         const categoryID= await find.findOneByIDCategories(content.category)
+        if(!categoryID)return res.status(404).send(`category id not found`)
         jsonProducto.category=categoryID._id
             //condicionales del objeto
             if(content.useStock && typeof content.stock!=="undefined")jsonProducto.stock=content.stock
@@ -28,27 +28,42 @@ const createProducto=async(req,res)=>{
 }
 const allProducto=async(req,res)=>{
     try {
-        let allProducts= await productosSchema.find({},'-__v')
-        return res.status(200).json({Products:allProducts})
+        let allProducts= await productosSchema.find({},'-__v -_id').populate({path:"category",select:'name -_id'})
+        return res.status(200).json({data:allProducts})
     } catch (error) {
         console.log(error);
-        return res.status(500).json({error:error}) 
+        return res.status(500).json({error}) 
     } 
 }
 const productoByID=async(req,res)=>{
-    return res.status(200).send("test ok productoByID")    
+    try {
+        let product= await productosSchema.findOne({folio:req.params["id"]},"-__v -_id").populate({path:"category",select:'name -_id'})
+        if(!allProducto)return res.status(404).send(`category id not found`)
+        return res.status(200).json({data:product})
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({error}) 
+    }   
 }
 const updateProducto=async(req,res)=>{
-    return res.status(200).send("test ok updateProducto")    
+    try {
+        const {id}=req.params
+        console.log(req.body)
+        const producto= await productosSchema.findOneAndUpdate({folio:id},req.body,{
+            new:true,
+            runValidators:true
+        })
+        if(!producto) return res.status(404).send(`category id not found`)  
+        res.sendStatus(202);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send(error) 
+    } 
 }
 const deleteProducto=async(req,res)=>{
     try {
         const deleteProducto=await productosSchema.findOneAndDelete({folio:req.params["id"]})
-        console.log(deleteProducto)
-        if(Object.keys(deleteProducto).length==0)throw "producto no pudo ser eliminado"
-        const deleteInventario=await InventarioSchema.findOneAndDelete({item:deleteProducto._id})
-        console.log(deleteInventario)
-        if(Object.keys(deleteInventario).length==0)throw "Inventario del producto no pudo ser eliminado"
+        if(!deleteProducto)res.status(404).send("user not found")
         return res.sendStatus(200)
     } catch (error) {
         return res.status(500).json(error)     

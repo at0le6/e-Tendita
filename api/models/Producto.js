@@ -42,7 +42,7 @@ const productosSchema = new mongoose.Schema({
     stock:Number,
     category:{
         type:mongoose.Schema.Types.ObjectId,
-        ref: 'categories',
+        ref: 'category',
         required: true 
     }
 })
