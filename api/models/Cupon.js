@@ -28,7 +28,7 @@ const CuponSchema = new mongoose.Schema({
     },
     easyName:{
         type:String,
-        
+        required:true
     }
 })
 export default mongoose.model('cupon', CuponSchema)
