@@ -4,7 +4,10 @@ import find from '../lib/Finds.js'
 const createProducto=async(req,res)=>{
     try {
         const content=req.body
-        const generatedFolio=await productosSchema.find().estimatedDocumentCount() +1
+        let generatedFolio
+        const folio=await productosSchema.find().sort({ folio: -1 }).limit(1)
+        if(folio.length==0)generatedFolio=1
+        else generatedFolio=folio[0].folio+1
         let jsonProducto={
                  name:content.name,price:content.price,description:content.description
                  ,header:content.header,folio:generatedFolio,useStock:content.useStock
@@ -28,25 +31,28 @@ const createProducto=async(req,res)=>{
 }
 const allProducto=async(req,res)=>{
     try {
-        let allProducts= await productosSchema.find({},'-__v -_id').populate({path:"category",select:'name -_id'})
+        const {grater,seller,...content}=req.body
+        let query={},sort={}
+        Object.entries(content).forEach(e=>{
+            if(e[0]=="price"){
+                query[e[0]]={$gte:e[1][0],$lte:e[1][1]}
+                console.log(query)
+            }
+            else query[e[0]]=e[1]
+        })
+        if(typeof grater!=="undefined")sort["price"]=grater?-1:1
+        if(typeof seller!=="undefined")sort["ventas"]=seller?-1:1
+        const allProducts= await productosSchema.find(query,"-__v -ventas").populate({path:"category",select:'name -_id'})
+            .sort(sort)
         return res.status(200).json({data:allProducts})
     } catch (error) {
         console.log(error);
         return res.status(500).json({error}) 
     } 
 }
-const productoByID=async(req,res)=>{
-    try {
-        let product= await productosSchema.findOne({folio:req.params["id"]},"-__v -_id").populate({path:"category",select:'name -_id'})
-        if(!allProducto)return res.status(404).send(`category id not found`)
-        return res.status(200).json({data:product})
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({error}) 
-    }   
-}
 const updateProducto=async(req,res)=>{
     try {
+        delete req.body.ventas
         const {id}=req.params
         console.log(req.body)
         const producto= await productosSchema.findOneAndUpdate({folio:id},req.body,{
@@ -75,4 +81,4 @@ const Historial=async(req,res)=>{
 const Current=async(req,res)=>{
     return res.status(200).send("test ok Actuales en curso")
 }
-export {createProducto,allProducto,productoByID,updateProducto,deleteProducto,Historial,Current}
+export {createProducto,allProducto,updateProducto,deleteProducto,Historial,Current}

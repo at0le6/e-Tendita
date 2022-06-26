@@ -44,6 +44,10 @@ const productosSchema = new mongoose.Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref: 'category',
         required: true 
+    },
+    ventas:{
+        type:Number,
+        default:0
     }
 })
 
