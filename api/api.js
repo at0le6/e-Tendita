@@ -10,7 +10,7 @@ app.use(express.json())
 app.use(morgan("dev"))
 //rutas van aqui con el prefico de APP
 creatBases()
-app.get("/",(req,res)=>res.statusCode(200))
+app.use("/",(req,res)=>res.sendStatus(200))
 app.use(prefix,Routers.productoRouter)
 app.use(prefix,Routers.cuponRouter)
 app.use(prefix,Routers.userRouter)
