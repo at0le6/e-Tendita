@@ -5,12 +5,10 @@ const router= express.Router()
 
 //login and sign up
 router.post("/signUp",User.createUser)
-router.get("/logIn",User.sigIn)
+router.post("/logIn",User.sigIn)
 
 //administrator uses
 router.route("/User")
-    .post(User.UserByID)
+    .get(User.allUser)
     .patch(User.updateUser)
-    .delete(User.deleteUser)
-router.get("/User",User.allUser)
 export default router
