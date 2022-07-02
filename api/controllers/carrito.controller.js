@@ -1,3 +1,6 @@
+import find from '../lib/Finds.js'
+import Carrito from '../models/Carrito.js'
+
 const createCarrito=async(req,res)=>{
     return res.status(200).send("test ok createCarrito")
 }

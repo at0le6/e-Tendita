@@ -46,13 +46,13 @@ const sigIn=async(req,res)=>{
 //Admin controllers
 const allUser=async(req,res)=>{
     try {
-        const users=await User.find()
+        const users=await User.find({},"-password -__v")
         return res.status(200).json({users})
     } catch (error) {
         return res.status(500).send(error)   
     } 
 }
-const updateUser=async(req,res)=>{
+const updateUserAdmin=async(req,res)=>{
     try {
         const { roles, id } = req.body
         const findUser = await User.findById(id);
@@ -66,4 +66,20 @@ const updateUser=async(req,res)=>{
         res.status(500).json({ msg: "Somthing went wrong" })
     } 
 }
-export {createUser,allUser,updateUser,sigIn}
+const updateUser=async(req,res)=>{
+    try {
+        delete req.body.rol
+        const {id,...content} = req.body
+        const findUser = await User.findByIdAndUpdate(id,{content},{
+            new:true,
+            runValidators:true
+        });
+        if (!findUser) {
+            return res.status(404).json({ msg: "User found" })
+        }
+        res.sendStatus(202);
+    } catch (error) {
+        res.status(500).json({ msg: "Somthing went wrong" })
+    } 
+}
+export {createUser,allUser,updateUserAdmin,sigIn,updateUser}
